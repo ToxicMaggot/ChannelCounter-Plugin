@@ -1,0 +1,60 @@
+/**
+ * @name ChannelCounter
+ * @description Mostra il numero di canali per ogni categoria e un indice numerico accanto a ogni canale.
+ * @version 1.0.0
+ */
+
+module.exports = class ChannelCounter {
+    start() {
+        this.addNumbers();
+        this.observe();
+    }
+
+    stop() {
+        if (this.observer) this.observer.disconnect();
+        document.querySelectorAll(".cc-count").forEach(e => e.remove());
+    }
+
+    addNumbers() {
+        // Categorie
+        document.querySelectorAll("[aria-label='Channels'] .containerDefault-3tr_sE").forEach(category => {
+            if (category.querySelector(".cc-count")) return;
+
+            const channels = category.nextElementSibling?.querySelectorAll(".containerDefault-YUSmu3") || [];
+            const count = channels.length;
+
+            const badge = document.createElement("span");
+            badge.className = "cc-count";
+            badge.textContent = ` (${count})`;
+            badge.style.color = "#ccc";
+            badge.style.fontSize = "12px";
+            badge.style.marginLeft = "4px";
+
+            const header = category.querySelector(".name-3BUDLf");
+            if (header) header.appendChild(badge);
+        });
+
+        // Canali
+        document.querySelectorAll("[aria-label='Channels'] .containerDefault-YUSmu3").forEach((channel, i) => {
+            if (channel.querySelector(".cc-count")) return;
+
+            const badge = document.createElement("span");
+            badge.className = "cc-count";
+            badge.textContent = ` #${i + 1}`;
+            badge.style.color = "#888";
+            badge.style.fontSize = "11px";
+            badge.style.marginLeft = "4px";
+
+            const name = channel.querySelector(".name-28HaxV");
+            if (name) name.appendChild(badge);
+        });
+    }
+
+    observe() {
+        const target = document.querySelector("[aria-label='Channels']");
+        if (!target) return;
+
+        this.observer = new MutationObserver(() => this.addNumbers());
+        this.observer.observe(target, { childList: true, subtree: true });
+    }
+};
